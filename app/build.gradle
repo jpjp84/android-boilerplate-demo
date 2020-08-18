@@ -1,0 +1,83 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: "androidx.navigation.safeargs.kotlin"
+apply plugin: 'dagger.hilt.android.plugin'
+
+android {
+    compileOptions {
+        targetCompatibility = "8"
+        sourceCompatibility = "8"
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    compileSdkVersion app.compileSdkVersion
+    defaultConfig {
+        applicationId "com.jp.boilerplate"
+        minSdkVersion app.minSdkVersion
+        targetSdkVersion app.targetSdkVersion
+        versionCode app.versionCode
+        versionName app.versionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    buildFeatures {
+        dataBinding true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "androidx.appcompat:appcompat:$androidx.appCompat"
+    implementation "androidx.core:core-ktx:$androidx.core"
+    implementation "androidx.constraintlayout:constraintlayout:$androidx.constraintLayout"
+    implementation "androidx.lifecycle:lifecycle-extensions:$androidx.lifecycle"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$androidx.lifecycle"
+
+    implementation "androidx.fragment:fragment:$androidx.fragmentVersion"
+    implementation "androidx.fragment:fragment-ktx:$androidx.fragmentKtx"
+    implementation "androidx.activity:activity:$androidx.activityVersion"
+    implementation "androidx.activity:activity-ktx:$androidx.activityKtx"
+
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
+
+    // Room
+    implementation "androidx.room:room-runtime:$androidx.room"
+    kapt "androidx.room:room-compiler:$androidx.room"
+    implementation "androidx.room:room-ktx:$androidx.room"
+
+    // HILT
+    implementation "com.google.dagger:hilt-android:$daggerHilt.android"
+    kapt "com.google.dagger:hilt-android-compiler:$daggerHilt.android"
+    // HILT-VIEWMODEL AND KOTLIN ANNOTATION PROCESSOR
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$daggerHilt.androidx"
+    kapt "androidx.hilt:hilt-compiler:$daggerHilt.androidx"
+
+    //Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$okhttp.retrofit"
+    implementation "com.squareup.retrofit2:converter-gson:$okhttp.retrofit"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$okhttp.retrofit"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp.version"
+
+    //ReactiveX
+    implementation "io.reactivex.rxjava2:rxkotlin:$rx.kotlin"
+    implementation "io.reactivex.rxjava2:rxandroid:$rx.android"
+
+    //Logger
+    implementation "com.orhanobut:logger:$loggerVersion"
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+}
