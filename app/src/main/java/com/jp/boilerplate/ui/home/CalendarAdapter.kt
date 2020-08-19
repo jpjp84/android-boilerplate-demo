@@ -23,9 +23,9 @@ class CalendarAdapter(private val viewModel: HomeViewModel) :
     class CalendarViewHolder constructor(private val binding: RowCalendarBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(viewModel: HomeViewModel, items: Day) {
+        fun bind(viewModel: HomeViewModel, day: Day) {
             binding.viewModel = viewModel
-            Logger.d("item : $items")
+            binding.day = day
         }
 
         companion object {
