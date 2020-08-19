@@ -12,11 +12,6 @@ import java.time.YearMonth
 class CalendarPageAdapter(private val viewModel: HomeViewModel) :
     ListAdapter<YearMonth, CalendarPageAdapter.CalendarPageViewHolder>(MonthDiffCallback()) {
 
-    fun submitList(list: Set<YearMonth>?, updatePosition: Int) {
-        super.submitList(list?.toList())
-        notifyItemRangeChanged(updatePosition, 1)
-    }
-
     fun submitList(yearMonthMap: CalendarMap) {
         super.submitList(yearMonthMap.keys.toList())
     }
