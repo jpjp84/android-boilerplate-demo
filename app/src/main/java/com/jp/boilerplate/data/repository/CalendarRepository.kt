@@ -11,7 +11,7 @@ interface CalendarRepository {
 
     fun observable(): LiveData<Day>
 
-    fun observableCalendar(yearMonths: LinkedList<YearMonth>): LiveData<CalendarMap>
+    fun observableCalendar(): LiveData<CalendarMap>
 
     suspend fun updateCalendar(yearMonths: LinkedList<YearMonth>)
 

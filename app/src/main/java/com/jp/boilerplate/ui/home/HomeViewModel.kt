@@ -31,7 +31,7 @@ class HomeViewModel @ViewModelInject constructor(
     private val _yearMonths = MutableLiveData<YearMonths>(YearMonths(listOf()))
     val calendar = _yearMonths.switchMap {
         viewModelScope.launch { calendarRepository.updateCalendar(it) }
-        calendarRepository.observableCalendar(it)
+        calendarRepository.observableCalendar()
     }
 
     init {
