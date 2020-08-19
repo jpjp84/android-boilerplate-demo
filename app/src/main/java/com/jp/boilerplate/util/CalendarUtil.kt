@@ -8,20 +8,20 @@ import java.time.YearMonth
 import java.util.*
 
 
-typealias YearMonths = MutableList<YearMonth>
-typealias DaysByYearMonths = MutableMap<YearMonth, Days>
+typealias YearMonths = LinkedList<YearMonth>
+typealias CalendarMap = Map<YearMonth, Days>
 
 object CalendarUtil {
     val currentDay: String = SimpleDateFormat("yyyyMMdd", Locale.KOREA).format(Date())
 
-    fun createYearMonth(year: Int = YearMonth.now().year, month: Int = YearMonth.now().monthValue): Array<Day> =
+    fun createYearMonth(year: Int = YearMonth.now().year, month: Int = YearMonth.now().monthValue): List<Day> =
         Calendar.getInstance()
             .apply {
                 set(year, month - 1, 1, 0, 0, 0)
                 add(Calendar.DAY_OF_MONTH, Calendar.SUNDAY - get(Calendar.DAY_OF_WEEK))
             }
             .let { calendar ->
-                Array(42) {
+                List(42) {
                     calendar.add(Calendar.DATE, if (it == 0) 0 else 1)
                     val isInMonth = month - 1 == calendar[Calendar.MONTH] && year == calendar[Calendar.YEAR]
                     val key = "${calendar[Calendar.YEAR]}${
