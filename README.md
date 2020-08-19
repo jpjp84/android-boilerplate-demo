@@ -1,11 +1,4 @@
-# android-boilerplate
-> [프로젝트 관련 Page](https://www.notion.so/Kotlin-for-Android-b4424a4b78f24f1e9c2908707d1bf227)
-
-### Branchs
-- mvvm-dagger2
-  - dagger2, kotlin, jetpack, retrofit, rxjava
-- mvvm-hilt
-  - Dagger2 -> HILT
+# android-boilerplate-demo
 
 ### Action
 - feature/*, master : unit test, lint, build action
