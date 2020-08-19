@@ -23,8 +23,7 @@ class HomeViewModel @ViewModelInject constructor(
 ) : BaseViewModel() {
 
     private val _forceUpdateUser = MutableLiveData<Boolean>(false)
-    private val _dataLoading = _forceUpdateUser.switchMap { userRepository.refreshUser(it) }
-    val dataLoading: LiveData<Result<Void>> = _dataLoading
+    val dataLoading: LiveData<Result<Void>> = _forceUpdateUser.switchMap { userRepository.refreshUser(it) }
 
     private val _user = userRepository.observable()
     val user: LiveData<User> = _user
