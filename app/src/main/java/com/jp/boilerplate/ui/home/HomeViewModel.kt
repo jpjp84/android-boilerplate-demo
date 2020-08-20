@@ -13,10 +13,12 @@ import com.jp.boilerplate.ui.base.BaseViewModel
 import com.jp.boilerplate.util.YearMonths
 import com.jp.boilerplate.util.dispatcher.CalendarPagerListener
 import com.jp.boilerplate.util.notifyDataChange
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.launch
 import java.time.YearMonth
 import java.util.*
 
+@ObsoleteCoroutinesApi
 class HomeViewModel @ViewModelInject constructor(
     private val userRepository: UserRepository,
     private val calendarRepository: CalendarRepository
@@ -44,7 +46,7 @@ class HomeViewModel @ViewModelInject constructor(
     override fun onFirstPage() {
         super.onFirstPage()
         _yearMonths.value?.let {
-            it.add(it.first.minusMonths(1))
+            it.addFirst(it.first.minusMonths(1))
             _yearMonths.notifyDataChange()
         }
     }

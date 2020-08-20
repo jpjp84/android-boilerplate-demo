@@ -4,8 +4,7 @@ import androidx.lifecycle.LiveData
 import com.jp.boilerplate.data.entity.Day
 import com.jp.boilerplate.util.CalendarMap
 import com.jp.boilerplate.util.YearMonths
-import java.time.YearMonth
-import java.util.*
+import kotlinx.coroutines.CompletableDeferred
 
 interface CalendarDataSource : BaseDataSource<Day> {
 
@@ -13,6 +12,6 @@ interface CalendarDataSource : BaseDataSource<Day> {
 
     fun observeCalendar(): LiveData<CalendarMap>
 
-    suspend fun updateCalendar(yearMonths: YearMonths)
+    suspend fun updateCalendar(yearMonths: YearMonths, response: CompletableDeferred<Int>)
 
 }
