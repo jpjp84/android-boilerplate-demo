@@ -9,7 +9,7 @@ import java.util.*
 
 
 typealias YearMonths = LinkedList<YearMonth>
-typealias CalendarMap = Map<YearMonth, Days>
+typealias CalendarMap = SortedMap<YearMonth, Days>
 
 object CalendarUtil {
     val currentDay: String = SimpleDateFormat("yyyyMMdd", Locale.KOREA).format(Date())

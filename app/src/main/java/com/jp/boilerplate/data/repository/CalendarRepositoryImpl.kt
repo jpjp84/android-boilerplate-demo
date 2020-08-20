@@ -6,6 +6,7 @@ import com.jp.boilerplate.data.datasource.CalendarDataSource
 import com.jp.boilerplate.data.entity.Day
 import com.jp.boilerplate.data.meta.Result
 import com.jp.boilerplate.util.CalendarMap
+import com.jp.boilerplate.util.YearMonths
 import java.time.YearMonth
 import java.util.*
 
@@ -20,7 +21,7 @@ class CalendarRepositoryImpl constructor(
     override fun observableCalendar(): LiveData<CalendarMap> =
         calendarLocalDataSource.observeCalendar().distinctUntilChanged()
 
-    override suspend fun updateCalendar(yearMonths: LinkedList<YearMonth>) {
+    override suspend fun updateCalendar(yearMonths: YearMonths) {
         calendarLocalDataSource.updateCalendar(yearMonths)
     }
 

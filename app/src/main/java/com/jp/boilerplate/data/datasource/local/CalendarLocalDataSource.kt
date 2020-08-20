@@ -7,16 +7,15 @@ import com.jp.boilerplate.data.entity.Day
 import com.jp.boilerplate.data.meta.db.UserDao
 import com.jp.boilerplate.util.CalendarMap
 import com.jp.boilerplate.util.CalendarUtil
+import com.jp.boilerplate.util.YearMonths
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.time.YearMonth
-import java.util.*
 
 class CalendarLocalDataSource(
     private val userDao: UserDao
 ) : CalendarDataSource {
 
-    private var observableCalendar = MutableLiveData<CalendarMap>(mutableMapOf())
+    private var observableCalendar = MutableLiveData<CalendarMap>(sortedMapOf())
 
     override fun observeDay(): LiveData<Day> {
         TODO("Not yet implemented")
@@ -24,14 +23,18 @@ class CalendarLocalDataSource(
 
     override fun observeCalendar(): LiveData<CalendarMap> = observableCalendar
 
-    override suspend fun updateCalendar(yearMonths: LinkedList<YearMonth>) {
+    override suspend fun updateCalendar(yearMonths: YearMonths) {
         observableCalendar.value = getUpdatedCalendarMap(yearMonths)
     }
 
-    private suspend fun getUpdatedCalendarMap(yearMonths: LinkedList<YearMonth>): CalendarMap =
+    private suspend fun getUpdatedCalendarMap(yearMonths: YearMonths): CalendarMap =
         withContext(Dispatchers.IO) {
-            (observableCalendar.value?.toMutableMap() ?: mutableMapOf()).apply {
-                yearMonths.map { yearMonth -> computeIfAbsent(yearMonth) { CalendarUtil.createYearMonth() } }
+            (observableCalendar.value?.toSortedMap() ?: sortedMapOf()).apply {
+                yearMonths.map { yearMonth ->
+                    computeIfAbsent(yearMonth) {
+                        CalendarUtil.createYearMonth(yearMonth.year, yearMonth.monthValue)
+                    }
+                }
             }
         }
 
