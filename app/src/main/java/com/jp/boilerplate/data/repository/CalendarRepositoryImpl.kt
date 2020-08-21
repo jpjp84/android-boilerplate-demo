@@ -32,8 +32,7 @@ class CalendarRepositoryImpl constructor(
 
     @ObsoleteCoroutinesApi
     override suspend fun updateCalendar(yearMonths: YearMonths) {
-        val completable = CompletableDeferred<Int>()
-        calendarLocalDataSource.updateCalendar(yearMonths, completable)
+        calendarLocalDataSource.updateCalendar(yearMonths)
     }
 
     override fun refreshDay(forceUpdate: Boolean): LiveData<Result<Void>> {

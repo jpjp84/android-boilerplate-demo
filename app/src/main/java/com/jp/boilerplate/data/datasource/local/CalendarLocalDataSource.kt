@@ -8,7 +8,6 @@ import com.jp.boilerplate.data.meta.db.UserDao
 import com.jp.boilerplate.util.CalendarMap
 import com.jp.boilerplate.util.CalendarUtil
 import com.jp.boilerplate.util.YearMonths
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -24,7 +23,7 @@ class CalendarLocalDataSource(
 
     override fun observeCalendar(): LiveData<CalendarMap> = observableCalendar
 
-    override suspend fun updateCalendar(yearMonths: YearMonths, response: CompletableDeferred<Int>) {
+    override suspend fun updateCalendar(yearMonths: YearMonths) {
         observableCalendar.value = getUpdatedCalendarMap(yearMonths)
     }
 
