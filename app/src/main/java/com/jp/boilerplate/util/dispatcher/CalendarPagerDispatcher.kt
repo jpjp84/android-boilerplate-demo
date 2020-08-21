@@ -10,7 +10,8 @@ fun RecyclerView.setScrollDispatcher(listener: CalendarPagerListener, pagerSnapH
 
     addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
         override fun onChildViewAttachedToWindow(view: View) {
-            listener.willUpdateEdgePage(CalendarPagerListener.EdgePageState.ALL)
+            listener.onFirstPage()
+            listener.onLastPage()
             removeOnChildAttachStateChangeListener(this)
         }
 
@@ -25,12 +26,12 @@ fun RecyclerView.setScrollDispatcher(listener: CalendarPagerListener, pagerSnapH
             }
 
             if (newState == RecyclerView.SCROLL_STATE_IDLE && scrolledPosition == 0) {
-                listener.willUpdateEdgePage(CalendarPagerListener.EdgePageState.FIRST)
+                listener.onFirstPage()
             }
 
             this@setScrollDispatcher.adapter?.let { adapter ->
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && scrolledPosition == adapter.itemCount.minus(1)) {
-                    listener.willUpdateEdgePage(CalendarPagerListener.EdgePageState.LAST)
+                    listener.onLastPage()
                 }
             }
         }

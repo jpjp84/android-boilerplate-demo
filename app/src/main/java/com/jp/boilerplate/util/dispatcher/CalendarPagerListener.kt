@@ -1,13 +1,14 @@
 package com.jp.boilerplate.util.dispatcher
 
 interface CalendarPagerListener {
-    enum class EdgePageState {
-        FIRST, LAST, ALL
+
+    fun onFirstPage() {
+    }
+
+    fun onLastPage() {
     }
 
     fun onChangePage(position: Int) {
 
     }
-
-    fun willUpdateEdgePage(state: EdgePageState) {}
 }

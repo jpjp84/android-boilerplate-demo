@@ -6,9 +6,10 @@ import com.jp.boilerplate.data.entity.Days
 import java.text.SimpleDateFormat
 import java.time.YearMonth
 import java.util.*
+import java.util.concurrent.LinkedBlockingDeque
 
 
-typealias YearMonths = LinkedList<YearMonth>
+typealias YearMonths = LinkedBlockingDeque<YearMonth>
 typealias CalendarMap = SortedMap<YearMonth, Days>
 
 object CalendarUtil {

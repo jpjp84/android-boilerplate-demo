@@ -16,7 +16,7 @@ import com.jp.boilerplate.util.notifyDataChange
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.launch
 import java.time.YearMonth
-import java.util.*
+import java.util.concurrent.LinkedBlockingDeque
 
 @ObsoleteCoroutinesApi
 class HomeViewModel @ViewModelInject constructor(
@@ -30,7 +30,7 @@ class HomeViewModel @ViewModelInject constructor(
     private val _user = userRepository.observable()
     val user: LiveData<User> = _user
 
-    private val _yearMonths = MutableLiveData<YearMonths>(LinkedList())
+    private val _yearMonths = MutableLiveData<YearMonths>(LinkedBlockingDeque())
     val calendar = _yearMonths.switchMap {
         viewModelScope.launch { calendarRepository.updateCalendar(it) }
         calendarRepository.observableCalendar()
@@ -43,17 +43,18 @@ class HomeViewModel @ViewModelInject constructor(
         }
     }
 
-    override fun willUpdateEdgePage(state: CalendarPagerListener.EdgePageState) {
-        super.willUpdateEdgePage(state)
+    override fun onFirstPage() {
+        super.onFirstPage()
         _yearMonths.value?.let {
-            when (state) {
-                CalendarPagerListener.EdgePageState.FIRST -> it.addFirst(it.first.minusMonths(1))
-                CalendarPagerListener.EdgePageState.LAST -> it.add(it.last.plusMonths(1))
-                else -> {
-                    it.addFirst(it.first.minusMonths(1))
-                    it.add(it.last.plusMonths(1))
-                }
-            }
+            it.addFirst(it.first.minusMonths(1))
+            _yearMonths.notifyDataChange()
+        }
+    }
+
+    override fun onLastPage() {
+        super.onLastPage()
+        _yearMonths.value?.let {
+            it.add(it.last.plusMonths(1))
             _yearMonths.notifyDataChange()
         }
     }
