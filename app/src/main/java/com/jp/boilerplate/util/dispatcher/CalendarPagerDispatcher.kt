@@ -3,7 +3,6 @@ package com.jp.boilerplate.util.dispatcher
 import android.view.View
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.orhanobut.logger.Logger
 
 
 fun RecyclerView.setScrollDispatcher(listener: CalendarPagerListener, pagerSnapHelper: PagerSnapHelper) {
@@ -11,8 +10,7 @@ fun RecyclerView.setScrollDispatcher(listener: CalendarPagerListener, pagerSnapH
 
     addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
         override fun onChildViewAttachedToWindow(view: View) {
-            listener.onFirstPage()
-            listener.onLastPage()
+            listener.willUpdateEdgePage(CalendarPagerListener.EdgePageState.ALL)
             removeOnChildAttachStateChangeListener(this)
         }
 
@@ -27,12 +25,12 @@ fun RecyclerView.setScrollDispatcher(listener: CalendarPagerListener, pagerSnapH
             }
 
             if (newState == RecyclerView.SCROLL_STATE_IDLE && scrolledPosition == 0) {
-                listener.onFirstPage()
+                listener.willUpdateEdgePage(CalendarPagerListener.EdgePageState.FIRST)
             }
 
             this@setScrollDispatcher.adapter?.let { adapter ->
                 if (newState == RecyclerView.SCROLL_STATE_IDLE && scrolledPosition == adapter.itemCount.minus(1)) {
-                    listener.onLastPage()
+                    listener.willUpdateEdgePage(CalendarPagerListener.EdgePageState.LAST)
                 }
             }
         }

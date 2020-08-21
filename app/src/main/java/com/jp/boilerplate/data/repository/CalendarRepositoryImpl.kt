@@ -7,12 +7,10 @@ import com.jp.boilerplate.data.entity.Day
 import com.jp.boilerplate.data.meta.Result
 import com.jp.boilerplate.util.CalendarMap
 import com.jp.boilerplate.util.YearMonths
-import com.orhanobut.logger.Logger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.channels.actor
 import kotlin.coroutines.CoroutineContext
 
 
@@ -33,20 +31,9 @@ class CalendarRepositoryImpl constructor(
         calendarLocalDataSource.observeCalendar().distinctUntilChanged()
 
     @ObsoleteCoroutinesApi
-    val actor = actor<CalendarActor> {
-        for (update in channel) {
-            when (update) {
-                is CalendarActor.Update -> {
-                    calendarLocalDataSource.updateCalendar(update.yearMonths, update.response)
-                }
-            }
-        }
-    }
-
-    @ObsoleteCoroutinesApi
     override suspend fun updateCalendar(yearMonths: YearMonths) {
         val completable = CompletableDeferred<Int>()
-        actor.send(CalendarActor.Update(yearMonths, completable))
+        calendarLocalDataSource.updateCalendar(yearMonths, completable)
     }
 
     override fun refreshDay(forceUpdate: Boolean): LiveData<Result<Void>> {

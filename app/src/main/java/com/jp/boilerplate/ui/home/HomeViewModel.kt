@@ -43,18 +43,17 @@ class HomeViewModel @ViewModelInject constructor(
         }
     }
 
-    override fun onFirstPage() {
-        super.onFirstPage()
+    override fun willUpdateEdgePage(state: CalendarPagerListener.EdgePageState) {
+        super.willUpdateEdgePage(state)
         _yearMonths.value?.let {
-            it.addFirst(it.first.minusMonths(1))
-            _yearMonths.notifyDataChange()
-        }
-    }
-
-    override fun onLastPage() {
-        super.onLastPage()
-        _yearMonths.value?.let {
-            it.add(it.last.plusMonths(1))
+            when (state) {
+                CalendarPagerListener.EdgePageState.FIRST -> it.addFirst(it.first.minusMonths(1))
+                CalendarPagerListener.EdgePageState.LAST -> it.add(it.last.plusMonths(1))
+                else -> {
+                    it.addFirst(it.first.minusMonths(1))
+                    it.add(it.last.plusMonths(1))
+                }
+            }
             _yearMonths.notifyDataChange()
         }
     }
