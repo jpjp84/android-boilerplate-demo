@@ -30,7 +30,11 @@ class HomeViewModel @ViewModelInject constructor(
     private val _user = userRepository.observable()
     val user: LiveData<User> = _user
 
-    private val _yearMonths = MutableLiveData<YearMonths>(LinkedBlockingDeque())
+    private val _yearMonths = MutableLiveData<YearMonths>().apply {
+        value = LinkedBlockingDeque<YearMonth>().apply {
+            add(YearMonth.now())
+        }
+    }
     val calendar = _yearMonths.switchMap {
         viewModelScope.launch { calendarRepository.updateCalendar(it) }
         calendarRepository.observableCalendar()
@@ -38,9 +42,6 @@ class HomeViewModel @ViewModelInject constructor(
 
     init {
         _forceUpdateUser.value = true
-        _yearMonths.value?.apply {
-            add(YearMonth.now())
-        }
     }
 
     override fun onFirstPage() {
