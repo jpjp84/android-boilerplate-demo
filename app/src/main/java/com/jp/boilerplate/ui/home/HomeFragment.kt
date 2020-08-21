@@ -9,7 +9,7 @@ import com.jp.boilerplate.R
 import com.jp.boilerplate.data.meta.Result
 import com.jp.boilerplate.databinding.FragmentHomeBinding
 import com.jp.boilerplate.ui.base.BaseFragment
-import com.orhanobut.logger.Logger
+import com.jp.boilerplate.util.dispatcher.setScrollDispatcher
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -23,10 +23,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         setNavigation()
-        viewBinding.homeCalendarPager.adapter = CalendarPageAdapter(viewModel)
-        PagerSnapHelper().attachToRecyclerView(viewBinding.homeCalendarPager)
-        viewModel.update()
-
+        setAdapter()
     }
 
     private fun setNavigation() {
@@ -35,7 +32,6 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
         })
 
         viewModel.calendar.observe(this.viewLifecycleOwner, Observer {
-            Logger.d("Updated calendar : ${it.keys}")
         })
 
         viewModel.dataLoading.observe(this.viewLifecycleOwner, Observer {
@@ -48,15 +44,16 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>() {
                 }
             }
         })
-//        viewModel.calendarLoading.observe(this.viewLifecycleOwner, Observer {
-//            when (it.status) {
-//                Result.Status.LOADING -> {
-////                    Logger.d("Loading...")
-//                }
-//                else -> {
-////                    Logger.d("Loading finish!")
-//                }
-//            }
-//        })
+    }
+
+    private fun setAdapter() {
+        viewBinding.homeCalendarPager.apply {
+            adapter = CalendarPageAdapter(viewModel)
+
+            val pagerSnapHelper = PagerSnapHelper().also {
+                it.attachToRecyclerView(this@apply)
+            }
+            setScrollDispatcher(viewModel, pagerSnapHelper)
+        }
     }
 }

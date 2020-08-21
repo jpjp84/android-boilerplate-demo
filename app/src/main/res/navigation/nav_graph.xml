@@ -7,5 +7,5 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.jp.boilerplate.ui.home.HomeFragment"
-        android:label="" />
+        android:label="Main" />
 </navigation>

@@ -4,8 +4,7 @@ import androidx.lifecycle.LiveData
 import com.jp.boilerplate.data.datasource.CalendarDataSource
 import com.jp.boilerplate.data.entity.Day
 import com.jp.boilerplate.util.CalendarMap
-import java.time.YearMonth
-import java.util.*
+import com.jp.boilerplate.util.YearMonths
 
 class CalendarRemoteDataSource : CalendarDataSource {
     override fun observeDay(): LiveData<Day> {
@@ -16,7 +15,7 @@ class CalendarRemoteDataSource : CalendarDataSource {
         TODO("Not yet implemented")
     }
 
-    override suspend fun updateCalendar(yearMonths: LinkedList<YearMonth>) {
+    override suspend fun updateCalendar(yearMonths: YearMonths) {
         TODO("Not yet implemented")
     }
 

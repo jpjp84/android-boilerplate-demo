@@ -6,10 +6,11 @@ import com.jp.boilerplate.data.entity.Days
 import java.text.SimpleDateFormat
 import java.time.YearMonth
 import java.util.*
+import java.util.concurrent.LinkedBlockingDeque
 
 
-typealias YearMonths = LinkedList<YearMonth>
-typealias CalendarMap = Map<YearMonth, Days>
+typealias YearMonths = LinkedBlockingDeque<YearMonth>
+typealias CalendarMap = SortedMap<YearMonth, Days>
 
 object CalendarUtil {
     val currentDay: String = SimpleDateFormat("yyyyMMdd", Locale.KOREA).format(Date())

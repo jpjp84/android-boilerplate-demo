@@ -3,8 +3,24 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar" />
 
     <style name="AppTheme.NoActionBar">
+        <item name="android:background">@color/colorPrimary</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
+    <!-- View Styles -->
+    <!-- Text -->
+    <style name="Text" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="Text.Title">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Text.Disable">
+        <item name="android:textColor">?attr/colorDisableText</item>
+    </style>
 </resources>

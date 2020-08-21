@@ -6,22 +6,32 @@ import com.jp.boilerplate.data.datasource.CalendarDataSource
 import com.jp.boilerplate.data.entity.Day
 import com.jp.boilerplate.data.meta.Result
 import com.jp.boilerplate.util.CalendarMap
-import com.orhanobut.logger.Logger
-import java.time.YearMonth
-import java.util.*
+import com.jp.boilerplate.util.YearMonths
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlin.coroutines.CoroutineContext
+
 
 class CalendarRepositoryImpl constructor(
     private val calendarLocalDataSource: CalendarDataSource,
     private val calendarRemoteDataSource: CalendarDataSource
-) : CalendarRepository {
+) : CalendarRepository, CoroutineScope {
+
+    sealed class CalendarActor {
+        class Update(val yearMonths: YearMonths, val response: CompletableDeferred<Int>) : CalendarActor()
+    }
+
     override fun observable(): LiveData<Day> {
         TODO("Not yet implemented")
     }
 
-    override fun observableCalendar(yearMonths: LinkedList<YearMonth>): LiveData<CalendarMap> =
+    override fun observableCalendar(): LiveData<CalendarMap> =
         calendarLocalDataSource.observeCalendar().distinctUntilChanged()
 
-    override suspend fun updateCalendar(yearMonths: LinkedList<YearMonth>) {
+    @ObsoleteCoroutinesApi
+    override suspend fun updateCalendar(yearMonths: YearMonths) {
         calendarLocalDataSource.updateCalendar(yearMonths)
     }
 
@@ -32,4 +42,7 @@ class CalendarRepositoryImpl constructor(
     override suspend fun setDay(user: Day) {
         TODO("Not yet implemented")
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 }

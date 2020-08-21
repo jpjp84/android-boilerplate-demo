@@ -11,16 +11,18 @@ import com.jp.boilerplate.data.repository.CalendarRepository
 import com.jp.boilerplate.data.repository.UserRepository
 import com.jp.boilerplate.ui.base.BaseViewModel
 import com.jp.boilerplate.util.YearMonths
+import com.jp.boilerplate.util.dispatcher.CalendarPagerListener
 import com.jp.boilerplate.util.notifyDataChange
-import com.orhanobut.logger.Logger
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.launch
 import java.time.YearMonth
+import java.util.concurrent.LinkedBlockingDeque
 
+@ObsoleteCoroutinesApi
 class HomeViewModel @ViewModelInject constructor(
     private val userRepository: UserRepository,
     private val calendarRepository: CalendarRepository
-) : BaseViewModel() {
+) : BaseViewModel(), CalendarPagerListener {
 
     private val _forceUpdateUser = MutableLiveData<Boolean>(false)
     val dataLoading: LiveData<Result<Void>> = _forceUpdateUser.switchMap { userRepository.refreshUser(it) }
@@ -28,25 +30,32 @@ class HomeViewModel @ViewModelInject constructor(
     private val _user = userRepository.observable()
     val user: LiveData<User> = _user
 
-    private val _yearMonths = MutableLiveData<YearMonths>(YearMonths(listOf()))
+    private val _yearMonths = MutableLiveData<YearMonths>().apply {
+        value = LinkedBlockingDeque<YearMonth>().apply {
+            add(YearMonth.now())
+        }
+    }
     val calendar = _yearMonths.switchMap {
         viewModelScope.launch { calendarRepository.updateCalendar(it) }
-        calendarRepository.observableCalendar(it)
+        calendarRepository.observableCalendar()
     }
 
     init {
         _forceUpdateUser.value = true
     }
 
-    fun update() {
-        _yearMonths.value?.add(YearMonth.of(2019, 2))
-        viewModelScope.launch {
-            delay(3000)
-            _yearMonths.value?.add(YearMonth.of(2019, 5))
+    override fun onFirstPage() {
+        super.onFirstPage()
+        _yearMonths.value?.let {
+            it.addFirst(it.first.minusMonths(1))
             _yearMonths.notifyDataChange()
+        }
+    }
 
-            delay(3000)
-            _yearMonths.value?.addFirst(YearMonth.of(2017, 5))
+    override fun onLastPage() {
+        super.onLastPage()
+        _yearMonths.value?.let {
+            it.add(it.last.plusMonths(1))
             _yearMonths.notifyDataChange()
         }
     }
