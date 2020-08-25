@@ -47,7 +47,6 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
         child: RecyclerView,
         dependency: View
     ): Boolean {
-
         scrollByDependency(child, dependency)
         return super.onDependentViewChanged(parent, child, dependency)
     }
@@ -63,24 +62,15 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
         ev: MotionEvent
     ): Boolean {
         when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                firstDownY = savedMoveDistance
-            }
+            MotionEvent.ACTION_DOWN -> firstDownY = savedMoveDistance
             MotionEvent.ACTION_UP -> {
                 (child[0] as? RecyclerView)?.getChildAt(0)?.measuredHeight?.let { childHeight ->
-                    val bottom = findBottomLayout(parent.getDependencies(child))
-
-                    if (abs(firstDownY) < abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) > 100 ||
-                        abs(firstDownY) > abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) < 100
-                    ) {
-                        bottom.animate().y((childHeight).toFloat()).setDuration(200).start()
-                        return@let
-                    }
-                    if (abs(firstDownY) > abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) > 100 ||
-                        abs(firstDownY) < abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) < 100
-                    ) {
-                        bottom.animate().y((initBottomY).toFloat()).setDuration(200).start()
-                    }
+                    val animateDistance = getAnimateDistance(childHeight)
+                    findBottomLayout(parent.getDependencies(child))
+                        .animate()
+                        .y(animateDistance)
+                        .setDuration(250)
+                        .start()
                 }
             }
             else -> return false
@@ -88,6 +78,27 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
         return super.onTouchEvent(parent, child, ev)
     }
 
+    private fun getAnimateDistance(childHeight: Int): Float {
+        val isSwipeTopAndCollapse =
+            abs(firstDownY) < abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) > 100
+        val isSwipeBottomAndNotExpand =
+            abs(firstDownY) > abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) < 100
+
+        if (isSwipeTopAndCollapse || isSwipeBottomAndNotExpand) {
+            return childHeight.toFloat()
+        }
+
+        val isSwipeBottomAndExpand =
+            abs(firstDownY) > abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) > 100
+        val isSwipeTopAndNotCollapse =
+            abs(firstDownY) < abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) < 100
+
+        if (isSwipeBottomAndExpand || isSwipeTopAndNotCollapse) {
+            return initBottomY.toFloat()
+        }
+
+        return 0f
+    }
 
     override fun onInterceptTouchEvent(
         parent: CoordinatorLayout,
