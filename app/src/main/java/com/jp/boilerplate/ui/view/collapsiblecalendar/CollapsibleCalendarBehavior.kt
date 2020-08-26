@@ -14,24 +14,42 @@ import kotlin.math.abs
 class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
     Behavior<RecyclerView>(context, attrs) {
 
+    companion object {
+        const val MINIMUM_MOVE_OFFSET = 100
+    }
+
     private var initBottomY = 0
-    private var savedMoveDistance = 0f
-    private var firstDownY = 0f
+    private var initBottomLayoutY = 0f
+    private lateinit var bottomLayout: View
+
+    var offsetBottomLayoutY: Float = 0f
+    var calendarRowHeight = 0
 
     override fun onLayoutChild(
         parent: CoordinatorLayout,
         child: RecyclerView,
         layoutDirection: Int
     ): Boolean {
-        child.layoutParams?.let {
+        getChildRowHeight(child)?.let { childRowHeight ->
             parent.onLayoutChild(child, layoutDirection)
             ViewCompat.offsetTopAndBottom(child, 0)
 
-            val bottom = findBottomLayout(parent.getDependencies(child))
+            bottomLayout = findBottomLayout(parent.getDependencies(child)).apply {
+                layout(0, initBottomY, parent.width, initBottomY + height)
+            }
             initBottomY = child.height
-            ViewCompat.offsetTopAndBottom(bottom, initBottomY)
+            calendarRowHeight = childRowHeight
         }
+
         return super.onLayoutChild(parent, child, layoutDirection);
+    }
+
+    private fun getChildRowHeight(child: RecyclerView): Int? {
+        if (child.layoutParams == null || child.childCount == 0) {
+            return null
+        }
+
+        return (child[0] as? RecyclerView)?.getChildAt(0)?.measuredHeight
     }
 
     override fun layoutDependsOn(
@@ -52,52 +70,69 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
     }
 
     private fun scrollByDependency(child: View, dependency: View) {
-        savedMoveDistance = dependency.y - initBottomY
-        child.y = savedMoveDistance
+        child.y = dependency.y - initBottomY
     }
 
     override fun onTouchEvent(
         parent: CoordinatorLayout,
         child: RecyclerView,
-        ev: MotionEvent
+        event: MotionEvent
     ): Boolean {
-        when (ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> firstDownY = savedMoveDistance
-            MotionEvent.ACTION_UP -> {
-                (child[0] as? RecyclerView)?.getChildAt(0)?.measuredHeight?.let { childHeight ->
-                    val animateDistance = getAnimateDistance(childHeight)
-                    findBottomLayout(parent.getDependencies(child))
-                        .animate()
-                        .y(animateDistance)
-                        .setDuration(250)
-                        .start()
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                offsetBottomLayoutY = bottomLayout.y - event.rawY
+                initBottomLayoutY = bottomLayout.y
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val calculatedBottomY = event.rawY + offsetBottomLayoutY
+                if (isOverflowRange(calculatedBottomY)) {
+                    return true
                 }
+                bottomLayout.y = calculatedBottomY
+            }
+            MotionEvent.ACTION_UP -> {
+                if (isOverflowRange(bottomLayout.y)) {
+                    return true
+                }
+
+                startViewEdgeStickAnim(parent, child)
             }
             else -> return false
         }
-        return super.onTouchEvent(parent, child, ev)
+        return true
+    }
+
+    private fun isOverflowRange(distance: Float): Boolean {
+        return distance >= initBottomY || distance <= calendarRowHeight
+    }
+
+    private fun startViewEdgeStickAnim(parent: CoordinatorLayout, child: RecyclerView) {
+        if (!::bottomLayout.isInitialized) {
+            bottomLayout = findBottomLayout(parent.getDependencies(child))
+        }
+
+        (child[0] as? RecyclerView)?.getChildAt(0)?.measuredHeight?.let { childHeight ->
+            bottomLayout
+                .animate()
+                .y(getAnimateDistance(childHeight))
+                .setDuration(250)
+                .start()
+        }
     }
 
     private fun getAnimateDistance(childHeight: Int): Float {
-        val isSwipeTopAndCollapse =
-            abs(firstDownY) < abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) > 100
-        val isSwipeBottomAndNotExpand =
-            abs(firstDownY) > abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) < 100
+        val isSwipeTop = initBottomLayoutY > bottomLayout.y
+        val isReachMoveOffset = abs(initBottomLayoutY - bottomLayout.y) > MINIMUM_MOVE_OFFSET
 
-        if (isSwipeTopAndCollapse || isSwipeBottomAndNotExpand) {
+        if ((isSwipeTop && isReachMoveOffset) || (!isSwipeTop && !isReachMoveOffset)) {
             return childHeight.toFloat()
         }
 
-        val isSwipeBottomAndExpand =
-            abs(firstDownY) > abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) > 100
-        val isSwipeTopAndNotCollapse =
-            abs(firstDownY) < abs(savedMoveDistance) && abs(firstDownY - savedMoveDistance) < 100
-
-        if (isSwipeBottomAndExpand || isSwipeTopAndNotCollapse) {
+        if ((!isSwipeTop && isReachMoveOffset) || (isSwipeTop && !isReachMoveOffset)) {
             return initBottomY.toFloat()
         }
 
-        return 0f
+        return bottomLayout.y
     }
 
     override fun onInterceptTouchEvent(
@@ -105,8 +140,7 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
         child: RecyclerView,
         ev: MotionEvent
     ): Boolean {
-        onTouchEvent(parent, child, ev)
-        return false
+        return true
     }
 
     private fun findBottomLayout(dependencies: List<View>): View {
