@@ -9,7 +9,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior
 import androidx.core.view.ViewCompat
 import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
-import com.orhanobut.logger.Logger
 import kotlin.math.abs
 
 class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
@@ -19,11 +18,12 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
         const val MINIMUM_MOVE_OFFSET = 100
     }
 
-    private var initBottomY = 0
-    private var initBottomLayoutY = 0f
     private lateinit var bottomLayout: View
 
-    var calendarRowHeight = 0
+    private var initBottomY = 0
+    private var initBottomLayoutY = 0f
+    private var offsetBottomLayoutY: Float = 0f
+    private var calendarRowHeight = 0
 
     override fun onLayoutChild(
         parent: CoordinatorLayout,
@@ -34,13 +34,11 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
             parent.onLayoutChild(child, layoutDirection)
             ViewCompat.offsetTopAndBottom(child, 0)
 
-            initBottomY = child.height
-            calendarRowHeight = childRowHeight
-
             bottomLayout = findBottomLayout(parent.getDependencies(child)).apply {
                 layout(0, initBottomY, parent.width, initBottomY + height)
-                minimumScrollY = childRowHeight.toFloat()
             }
+            initBottomY = child.height
+            calendarRowHeight = childRowHeight
         }
 
         return super.onLayoutChild(parent, child, layoutDirection);
@@ -72,10 +70,6 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
     }
 
     private fun scrollByDependency(child: View, dependency: View) {
-        if (dependency.y < 440f) {
-            return
-        }
-        Logger.d("dependencyY : ${dependency.y}")
         child.y = dependency.y - initBottomY
     }
 
@@ -86,16 +80,26 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
     ): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                offsetBottomLayoutY = bottomLayout.y - event.rawY
                 initBottomLayoutY = bottomLayout.y
             }
-            MotionEvent.ACTION_UP -> {
-                if (isOverflowRange(bottomLayout.y)) {
+            MotionEvent.ACTION_MOVE -> {
+                val calculatedBottomY = event.rawY + offsetBottomLayoutY
+                if (isOverflowRange(calculatedBottomY)) {
+                    return true
+                }
+                bottomLayout.y = calculatedBottomY
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                if (!::bottomLayout.isInitialized || isOverflowRange(bottomLayout.y)) {
                     return true
                 }
 
                 startViewEdgeStickAnim(parent, child)
             }
-            else -> return false
+            else -> {
+                return false
+            }
         }
         return true
     }
@@ -133,16 +137,12 @@ class CollapsibleCalendarBehavior(context: Context?, attrs: AttributeSet?) :
         return bottomLayout.y
     }
 
-    override fun onInterceptTouchEvent(
-        parent: CoordinatorLayout,
-        child: RecyclerView,
-        ev: MotionEvent
-    ): Boolean {
+    override fun onInterceptTouchEvent(parent: CoordinatorLayout, child: RecyclerView, ev: MotionEvent): Boolean {
         onTouchEvent(parent, child, ev)
         return false
     }
 
-    private fun findBottomLayout(dependencies: List<View>): CollapsibleCalendarBottom {
+    private fun findBottomLayout(dependencies: List<View>): View {
         dependencies.map {
             if (it is CollapsibleCalendarBottom) return it
         }

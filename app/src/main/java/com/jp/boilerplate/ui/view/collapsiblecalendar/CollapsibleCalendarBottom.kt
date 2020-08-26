@@ -1,10 +1,10 @@
 package com.jp.boilerplate.ui.view.collapsiblecalendar
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.orhanobut.logger.Logger
 
 class CollapsibleCalendarBottom : ConstraintLayout {
     constructor(context: Context) : super(context)
@@ -23,42 +23,49 @@ class CollapsibleCalendarBottom : ConstraintLayout {
     ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     var dX: Float = 0f
-    var offsetBottomLayoutY: Float = 0f
-    var maximumScrollY = 0f
-    var minimumScrollY = 0f
+    var dY: Float = 0f
+    var lastAction = 0
+    var initY = 0f
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        if (changed) {
-            maximumScrollY = y
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                offsetBottomLayoutY = this.y - event.rawY
-            }
-            MotionEvent.ACTION_MOVE -> {
-                val calculatedY = event.rawY + offsetBottomLayoutY
-                if (overflowScrollRange(calculatedY)) {
-                    return true
-                }
-                this.y = calculatedY
-            }
-            else -> {
-                return true
-            }
-        }
-        return true
-    }
-
-    private fun overflowScrollRange(distance: Float): Boolean {
-        return minimumScrollY > distance || maximumScrollY < distance
-    }
-
-    override fun onInterceptTouchEvent(e: MotionEvent?): Boolean {
-        return true
-    }
+//    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+//        super.onLayout(changed, left, top, right, bottom)
+//        if (changed) {
+//            initY = y
+//        }
+//    }
+//
+//    override fun onTouchEvent(event: MotionEvent?): Boolean {
+//        when (event?.actionMasked) {
+//            MotionEvent.ACTION_DOWN -> {
+//                dX = this.x - event.rawX
+//                dY = this.y - event.rawY
+//                lastAction = MotionEvent.ACTION_DOWN
+//            }
+//            MotionEvent.ACTION_MOVE -> {
+//                val distance = event.rawY + dY
+//                if (distance < 144) {
+//                    return false
+//                }
+//                if (initY < distance) {
+//                    return false
+//                }
+//                this.y = event.rawY + dY
+//            }
+//            MotionEvent.ACTION_UP -> {
+//                performClick()
+//            }
+//            else -> {
+//                return true
+//            }
+//        }
+//        return true
+//    }
+//
+//    override fun performClick(): Boolean {
+//        return super.performClick()
+//    }
+//
+//    override fun onInterceptTouchEvent(e: MotionEvent?): Boolean {
+//        return true
+//    }
 }
